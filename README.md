@@ -66,7 +66,7 @@ source .venv/bin/activate
 ### 3. Install dependencies
 
 ```bash
-pip install openai-agents sendgrid python-dotenv openai
+pip install openai-agents sendgrid python-dotenv openai --no-cache
 ```
 
 ### 4. Create your `.env` file
@@ -80,7 +80,7 @@ SENDGRID_API_KEY=your_sendgrid_api_key_here
 
 ### 5. Set your email addresses
 
-Open `sales_agent.py` and update these two lines inside `send_html_email`:
+Open `main.py` and update these two lines inside `send_html_email`:
 
 ```python
 from_email = Email("YOUR_VERIFIED_SENDER@example.com")  # must match your verified SendGrid sender
@@ -92,7 +92,7 @@ to_email   = To("YOUR_RECIPIENT@example.com")            # where you want the em
 ## Run
 
 ```bash
-python sales_agent.py
+python main.py
 ```
 
 You should see the agent working through the steps in your terminal. Once complete, check your inbox (and **Spam folder**) for the HTML sales email.
@@ -105,7 +105,7 @@ You can also view the full agent trace at: https://platform.openai.com/traces
 
 ```
 .
-├── sales_agent.py   # All agent definitions and entry point
+├── main.py   # All agent definitions and entry point
 ├── .env             # Your API keys (never committed)
 ├── .gitignore       # Excludes .env and .venv from git
 └── README.md
