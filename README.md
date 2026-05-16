@@ -29,6 +29,72 @@ Sales Manager  (orchestrator)
 
 ---
 
+## Architecture Deep Dive
+
+Understanding the architecture helps you adapt this system to any domain — not just sales emails.
+
+### The Two Core Concepts: Tools vs Handoffs
+
+This project uses the OpenAI Agents SDK and demonstrates two distinct ways agents can collaborate:
+
+**Agents as Tools** — the calling agent retains control. It fires a sub-agent like a function call, gets the result back, and continues making decisions. Think of it as delegating a task but staying in charge.
+
+**Handoffs** — control is transferred completely. The original agent passes the baton to another agent and steps aside. The new agent takes over and runs to completion independently.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        TOOLS (control returns)                  │
+│                                                                 │
+│   Sales Manager ──calls──► sales_agent1  ──result──► (back)    │
+│                  ──calls──► sales_agent2  ──result──► (back)    │
+│                  ──calls──► sales_agent3  ──result──► (back)    │
+│                        Sales Manager decides the winner         │
+└─────────────────────────────────────────────────────────────────┘
+                                  │
+                                  │  HANDOFF (control transfers)
+                                  ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                       Email Manager                             │
+│                                                                 │
+│   Email Manager ──calls──► subject_writer   ──result──► (back) │
+│                 ──calls──► html_converter   ──result──► (back)  │
+│                 ──calls──► send_html_email()                    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Why This Pattern Is Powerful
+
+The architecture separates three responsibilities that exist in almost any automated content workflow:
+
+| Layer | Role | Agent in this project |
+|---|---|---|
+| **Generation** | Produce multiple variations of output | sales_agent1, 2, 3 |
+| **Orchestration** | Evaluate options and decide | Sales Manager |
+| **Delivery** | Format and dispatch the output | Email Manager |
+
+This separation means each layer can be swapped out or extended independently.
+
+### Adapting This to Any Profession
+
+The cold email is just one use case. The same three-layer architecture applies anywhere you want to generate, evaluate, and deliver content:
+
+| Domain | Generation agents | Orchestrator | Delivery agent |
+|---|---|---|---|
+| **Recruitment** | Formal JD writer, Casual JD writer, Technical JD writer | HR Manager picks best job description | Posts to LinkedIn / sends to candidates |
+| **Marketing** | Brand-voice writer, Trendy writer, Minimalist writer | Marketing Manager picks best ad copy | Publishes to social media or email list |
+| **Customer Support** | Empathetic responder, Direct responder, Detailed responder | Support Lead picks best reply | Sends reply via helpdesk API |
+| **Legal Drafting** | Aggressive clause writer, Neutral writer, Conservative writer | Senior Partner picks best contract clause | Inserts into document via API |
+| **Journalism** | Formal reporter, Conversational blogger, Bullet-point summariser | Editor picks best article draft | Publishes via CMS API |
+
+To adapt the project, you only need to change:
+1. The **instructions** given to the three generator agents (their persona and domain)
+2. The **delivery function** (`send_html_email`) to point at your target system (Slack, CMS, database, etc.)
+3. The **orchestrator's instructions** to reflect the evaluation criteria for your domain
+
+Everything else — the tool/handoff wiring, the runner, the tracing — stays exactly the same.
+
+---
+
 ## Prerequisites
 
 - [uv](https://github.com/astral-sh/uv) installed (`pip install uv` or follow [uv docs](https://docs.astral.sh/uv/getting-started/installation/))
@@ -66,7 +132,7 @@ source .venv/bin/activate
 ### 3. Install dependencies
 
 ```bash
-pip install openai-agents sendgrid python-dotenv openai --no-cache
+pip install openai-agents sendgrid python-dotenv openai
 ```
 
 ### 4. Create your `.env` file
