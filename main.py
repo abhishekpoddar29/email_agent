@@ -86,8 +86,8 @@ html_tool = html_converter.as_tool(
 def send_html_email(subject: str, html_body: str) -> Dict[str, str]:
     """Send out an email with the given subject and HTML body to all sales prospects."""
     sg         = sendgrid.SendGridAPIClient(api_key=os.environ.get("SENDGRID_API_KEY"))
-    from_email = Email("abhiramos5829@gmail.com")   # ← change to your verified SendGrid sender
-    to_email   = To("abhishekpoddar5829@gmail.com")            # ← change to your recipient
+    from_email = Email("YOUR@GMAIL.COM")   # ← change to your verified SendGrid sender
+    to_email   = To("SEND_TO@GMAIL.COM")            # ← change to your recipient
     content    = Content("text/html", html_body)
     mail       = Mail(from_email, to_email, subject, content).get()
     response   = sg.client.mail.send.post(request_body=mail)
